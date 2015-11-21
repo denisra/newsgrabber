@@ -10,7 +10,7 @@ import email
 
 logger = logging.getLogger(__name__)
 
-class Gmail():
+class Gmail:
 
     def __init__(self, secrets, storage, scopes):
 
