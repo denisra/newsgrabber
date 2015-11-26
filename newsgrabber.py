@@ -2,6 +2,8 @@ import yaml
 import gmailtool
 import logging
 import os
+import url2html
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -89,16 +91,31 @@ def parse_messages(messages, category, content_dir):
                     else:
                         logger.warn('Skipping. File already exists: %s', file_name)
         else:
-            metadata = create_metadata(msg_id, message, 'markdown')
+            #metadata = create_metadata(msg_id, message, 'markdown')
             content = create_content(message, 'markdown')
+            if len(content) > 1:
+                logger.warn('Total of %s links in msg id %s', len(content), msg_id)
+                continue
+            u2h = url2html.Url2Html(content[0])
+            try:
+                u2h.get_content()
+            #except requests.exceptions.HTTPError:
+            except :
+                logger.error('Unable to download content')
+            if not u2h.content:
+                continue
+            html = u2h.convert_relative_links()
             print 'message id %s is text' % msg_id
-            file_name = content_dir + msg_id + '.md'
+            data = create_metadata(msg_id, message, 'html', html, category)
+            #file_name = content_dir + msg_id + '.md'
+            file_name = content_dir + msg_id + '.html'
             print 'writing file %s' % file_name
             if not os.path.isfile(file_name):
                 with open(file_name, 'w') as f:
                     #f.write('Title')
-                    f.write(metadata)
-                    f.write(message.get_payload(decode=True).strip())
+                    #f.write(metadata)
+                    #f.write(message.get_payload(decode=True).strip())
+                    f.write(data.encode('utf-8'))
                     #for c in content:
                     #    f.write('\n<' + c + '>')
             else:

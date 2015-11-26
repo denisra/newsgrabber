@@ -12,12 +12,16 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+class ContentNotFound(Exception):
+    pass
+
+
 class Url2Html:
 
     def __init__(self, url):
 
         self.url = url
-        self.base_url = None
+        self.base_url = urljoin(self.url, '/') #None
         self.content = None
         self.html = None
         logger.info('Url2Html initialized with url: %s', self.url)
@@ -41,10 +45,30 @@ class Url2Html:
             except requests.exceptions.HTTPError:
                 logger.error('Unable to get content from %s ', self.url, exc_info = True)
 
+    def convert_relative_links(self):
+
+        if self.content:
+            content = bs(self.content, 'html5lib')
+            for attr in [('a', 'href'), ('link', 'href'), ('img', 'src')]:
+                for link in content.find_all(attr[0], **{attr[1]: True}):
+                    href = link.get(attr[1])
+                    #print 'link = %s' % link
+                    if not href.startswith('http') and not href.startswith('#'):
+                        absolute = urljoin(self.base_url, href)
+                        link[attr[1]] = absolute
+                        logger.info('Converted path %s to %s', href, absolute)
+            self.html = content.prettify(formatter="html")
+            logger.info('Successfully converted url %s to html.', self.url)
+#            with open('test.html', 'w') as f:
+#                f.write(self.html)
+            return self.html
+        else:
+            logger.error('Content does not exist. Please call the get_content method first.')
+            raise ContentNotFound
 
 
-
-html = Url2Html('https://migrateup.com/store/advanced-python-book/')
-#html = Url2Html('http://denisra.com/dasdas')
+#html = Url2Html('https://migrateup.com/store/advanced-python-book/')
+html = Url2Html('http://charlesleifer.com/blog/how-to-make-a-flask-blog-in-one-hour-or-less/')
 print html.parse_base_url()
 html.get_content()
+html.convert_relative_links()
