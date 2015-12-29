@@ -4,3 +4,4 @@ conf/
 *.pyc
 pelican/
 *.log.1
+venv/
