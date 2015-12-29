@@ -5,12 +5,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(level=logging.INFO)
-handler = logging.FileHandler('newsgrabber.log')
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# logging.basicConfig(level=logging.INFO)
+# handler = logging.FileHandler('newsgrabber.log')
+# handler.setLevel(logging.INFO)
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 
 class ContentNotFound(Exception):
     pass
@@ -57,7 +57,7 @@ class Url2Html:
                         absolute = urljoin(self.base_url, href)
                         link[attr[1]] = absolute
                         logger.info('Converted path %s to %s', href, absolute)
-            self.html = content.prettify(formatter="html")
+            self.html = content.prettify(formatter="html").encode('utf-8')
             logger.info('Successfully converted url %s to html.', self.url)
 #            with open('test.html', 'w') as f:
 #                f.write(self.html)
@@ -68,7 +68,7 @@ class Url2Html:
 
 
 #html = Url2Html('https://migrateup.com/store/advanced-python-book/')
-html = Url2Html('http://charlesleifer.com/blog/how-to-make-a-flask-blog-in-one-hour-or-less/')
-print html.parse_base_url()
-html.get_content()
-html.convert_relative_links()
+# html = Url2Html('http://charlesleifer.com/blog/how-to-make-a-flask-blog-in-one-hour-or-less/')
+# print html.parse_base_url()
+# html.get_content()
+# html.convert_relative_links()
