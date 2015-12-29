@@ -2,3 +2,5 @@
 conf/
 *.log
 *.pyc
+pelican/
+*.log.1
