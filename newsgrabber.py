@@ -231,12 +231,14 @@ def create_metadata(msg_id, message, fmt, data=None, category=None):
         slug = '<meta name="Slug" content="' + str(msg_id) + '"/>\n'
         categories = '<meta name="category" content="' + category + '"/>\n'
         #print categories
-        #if not content.find_all('title'):
-        #   title = '<title>' + message['Subject'] + '</title>\n'
         #   metadata = data[:index] + slug + categories + str(summary) + title + data[index:]
         #else:
         new_data = data[:index] + slug + categories + str(summary) + data[index:]
         metadata = bs(new_data, 'html5lib')
+        if not metadata.title:
+            title = metadata.new_tag('title')
+            title.string = str(message['Subject']).strip()
+            metadata.head.insert_after(title)
         return metadata.prettify(formatter="html").encode('utf-8')
 
     if fmt == 'rst':
